@@ -1,0 +1,52 @@
+library(dplyr)
+#read the Dataset sheet into “R”. The dataset will be called "data".
+data <- read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv",
+                 na.strings = "",header=T)
+
+glimpse(data)
+res <- NULL
+for (i in 1:length(unique(data$date))){
+  data1 <- data[which((data$date==unique(data$date)[i])&(data$continent=="Asia")),]
+  data1 <- data1 %>% select("iso_code","date","new_cases", "handwashing_facilities")
+  if (sum(rowSums(!is.na(data1[,3:4]))==2)>=10){
+    res <- rbind(res, c(unique(data$date)[i],
+                        cor.test(data1[,3],data1[,4])$estimate,
+                        cor.test(data1[,3],data1[,4])$p.value))
+  }}
+res[which((as.numeric(res[,2])>0)& (as.numeric(res[,3])<=0.05)),]
+
+#Ours - Australian women who smoke2
+
+y <- data$new_cases
+x <- data$female_smokers
+z <- data$continent=="Australia"
+
+
+model_chal <- lm(y ~ x * z)
+#Interactive model between female smokers and Australia (being Australian) and 
+#total cases/new cases 
+summary(model_chal)
+
+
+#p < 0.01
+
+#EXPLANATION
+#As the frequency of Australian women who smoked increased, as did number of new cases. 
+#Female smokers alone did not result in a significant value, but Australian women, specifically,
+#did. Looks like the women down under need to stop smoking so we can get the pandemic under
+#control.
+
+#SUBJECTIVE CONCLUSION
+  #Increasing pandemic cases are the result of Australian women not being able to
+  #put down the cigarettes. 
+
+#NON-STATISTICAL EXPLANATION
+  #Women, who tend to smoke, and are Australian have basically been
+  #a major reason for covid cases, if not one of the main (sole)
+  #causes for pandemic cases and death.
+
+#CRITIQUE OUR METHODS
+  #Obviously, correlation does not equate to causation, and p-values are 
+  #only a matter of sample size rather than true significance (at least in life
+  #and health sciences)
+
